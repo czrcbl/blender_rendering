@@ -9,7 +9,7 @@ from pathlib import Path
 from PIL import Image
 from os.path import join as pjoin
 
-from traindet import config as cfg
+from scripts import config as cfg
 
 def add_background(rendered_folder, output_folder, args, gray=False):
     
@@ -74,13 +74,13 @@ def split_dataset(dataset_folder, args):
 def parse_args():
 
     parser = argparse.ArgumentParser('Render parts images using blender.')
-    parser.add_argument('--dataset-name', help='The name of the output dataset.')
+    parser.add_argument('--dataset-name', default='test', help='The name of the output dataset.')
     parser.add_argument('--train-fraq', default=0.7)
     parser.add_argument('--seed', default=233, type=int)
     parser.add_argument('--output-folder', default=pjoin(cfg.project_folder, 'temp'))
     parser.add_argument('--background', action='store_true')
     
-    parser.add_argument('--mode', default='test', 
+    parser.add_argument('--mode', default='random', 
         help='The mode of the rendering, options: random, deterministic, test')
     
     parser.add_argument('--vangles', default='-90,90,30', help='Vertical angle,\
@@ -131,6 +131,10 @@ def main():
 
     rendered_folder = pjoin(args.output_folder, 'rendered_images')
     dataset_folder = pjoin(args.output_folder, args.dataset_name)
+    try:
+        os.makedirs(dataset_folder)
+    except:
+        pass
     if args.background:
         add_background(rendered_folder, dataset_folder, args)
     else:

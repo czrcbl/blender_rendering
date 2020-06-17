@@ -382,17 +382,19 @@ def random_render(args):
 
     textures = listdir(pjoin(args.assets_folder, 'textures'))
     random.seed(args.seed)
-    distances = create_parameter_range(args.distances)
+    # distances = create_parameter_range(args.distances)
+    vals = [float(a) for a in args.distances.strip('"').split(',')]
+    dmin, dmax = vals[0], vals[-1]
     # n_views = 10
     params_range = {
         'energy': (5*10e5, 10e6),
         'rot_x': (0, 2 * math.pi),
         'rot_y': (0, 2 * math.pi),
         'rot_z': (0, 2 * math.pi),
-        'distance': distances,
+        'distance': (dmin, dmax),
         'lamp_r': (300, 1000)
     }
-
+    print(params_range)
 ##########################################
 
     prefs = bpy.context.preferences
@@ -446,7 +448,7 @@ def random_render(args):
             lx = random.uniform(*params_range['lamp_r'])
             ly = random.uniform(*params_range['lamp_r'])
             lz = random.uniform(*params_range['lamp_r'])
-            lamp = create_lamp(Vector((lx, ly, lz)), energy)
+            lamp = create_lamp('lamp', Vector((lx, ly, lz)), energy)
 
             fprefix = pjoin(prefix, str(i))
             render_scene_bb(scene, cam_ob, obj, obj_number, fprefix)
@@ -464,7 +466,7 @@ def parse_args():
 def main():
 
     args = parse_args()
-
+    print(args)
     if args.mode == 'random':
         random_render(args)
     elif args.mode == 'deterministic':
