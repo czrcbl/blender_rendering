@@ -11,6 +11,33 @@ from os.path import join as pjoin
 
 from scripts import config as cfg
 
+
+class BackgroundSampler:
+    
+    def __init__(self, backgrounds_folder=cfg.backgrounds_folder, printer_prob=0.5):
+        self.backgrounds_folder = backgrounds_folder
+        self.printer_prob = printer_prob
+        self.printer_files = self.gather_all_files(os.path.join(backgrounds_folder, 'printer'))
+        self.general_files = self.gather_all_files(os.path.join(backgrounds_folder, 'general'))
+            
+    def gather_all_files(self, base_dir):
+        out = []
+        for root, dirs, files in os.walk(base_dir):
+            for fn in files:
+                fpath = os.path.join(root, fn)
+                out.append(fpath)
+                
+        return out
+    
+    def get_sample(self):
+        s = random.random()
+        if s > 1 - self.printer_prob:
+            files = self.printer_files
+        else:
+            files = self.general_files
+        bg = random.choice(files)
+        return bg
+        
 def add_background(rendered_folder, output_folder, args, gray=False):
     
     rendered_folder = Path(rendered_folder)
@@ -19,7 +46,8 @@ def add_background(rendered_folder, output_folder, args, gray=False):
 
     classes = os.listdir(rendered_folder)
 
-    bgs = [backgrounds_folder / fn for fn in os.listdir(backgrounds_folder)]
+    # bgs = [backgrounds_folder / fn for fn in os.listdir(backgrounds_folder)]
+    bgs = BackgroundSampler()
 
     random.seed(args.seed)
     for _class in classes:
@@ -32,7 +60,7 @@ def add_background(rendered_folder, output_folder, args, gray=False):
                 if gray:
                     bg = pjoin(cfg.assets_folder, 'gray_bg.jpeg')
                 else:
-                    bg = random.choice(bgs)
+                    bg = bgs.get_sample()
                 background = Image.open(bg)
                 foreground = Image.open(origin_path)
                 background = background.resize(foreground.size, Image.ANTIALIAS)

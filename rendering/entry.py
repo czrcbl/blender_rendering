@@ -267,7 +267,7 @@ def add_texture(texture_path, obj):
 #     me.materials.append(mat)
 
 def create_parameter_range(arg):
-    vals = [float(a) for a in arg.strip('"').split(',')]
+    vals = [float(a) for a in arg.strip('"').strip('\\').split(',')]
     out = []
     v = vals[0]
     while v <= vals[1]:
